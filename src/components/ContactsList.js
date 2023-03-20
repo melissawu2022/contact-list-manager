@@ -7,6 +7,7 @@ import {
   Divider,
   ListItemAvatar,
   ListItemButton,
+  ListSubheader,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import Box from "@mui/material/Box";
@@ -18,7 +19,7 @@ import { Dialog, DialogContent, DialogTitle, DialogActions, TextField } from '@m
 
 
 export default function ContactsList(props) {
-  let [contacts, setContacts] = useState([]);
+  let [contacts, setContacts] = useState([]); //CAN WE CHANGE LET TO CONST LATER????
   const [contactID, setContactID] = useState(0)
   const [open, setOpen] = useState(false);
   const [firstName, setFirstName] = useState("")
@@ -26,7 +27,7 @@ export default function ContactsList(props) {
   const [phoneNumber, setPhoneNumber] = useState("")
   const [email, setEmail] = useState("")
   const [address, setAddress] = useState("")
-
+  const [editDialogState, setEditDialogState] = useState(false)
 
   /**
    * if have extra time, make sure to check for unique emails
@@ -37,36 +38,55 @@ export default function ContactsList(props) {
     setContacts(updatedContacts)
   };
 
-  const handleOpen = () => {
-    setOpen(true);
-  }
-
-  const addContact = (contactID, firstName, email) => {
-    let newContact = { contactID: contactID, firstName: firstName, email: email }
+  const addContact = (firstName, lastName, phoneNumber, email, address) => {
+    let newContact = { contactID: contactID, firstName: firstName, lastName: lastName, phoneNumber: phoneNumber, email: email, address: address }
 
     const updatedContacts = [...contacts, newContact]
     setContacts(updatedContacts)
-    
-    setContactID(contactID+1)
-    handleClose()
+
+    setContactID(contactID + 1)
+    handleCloseAddContactDialog()
+  }
+
+  const updateContact = (contactID) => {
+    for (let i = 0; i < contacts.length; i++) {
+      if (contacts[i].contactID === contactID) {
+        contacts[i].firstName = firstName
+        contacts[i].lastName = lastName
+        contacts[i].phoneNumber = phoneNumber
+        contacts[i].email = email
+        contacts[i].address = address
+      }
+    }
+    handleCloseEditContactDialog()
   }
 
 
-  const handleClose = () => {
-    setFirstName("")
-    setLastName("")
-    setPhoneNumber("")
-    setEmail("")
-    setAddress("")
-    setOpen(false);
+  /* handlers */
+
+  const handleAddContactClick = () => {
+    setOpen(true);
+  }
+
+  const handleEditOpen = () => {
+    setEditDialogState(true);
+    console.debug("handleEditOpen", editDialogState)
+  }
+
+  const handleEditClose = () => {
+    setEditDialogState(false);
+  }
+
+  const handleCloseEditContactDialog = () => {
+    handleEditClose(false);
   };
 
   const handleFirstName = (event) => {
     setFirstName(event.target.value)
-    console.debug("firstName", firstName)
   };
 
   const handleLastName = (e) => {
+    console.debug(e.target.value)
     setLastName(e.target.value)
   };
 
@@ -82,15 +102,26 @@ export default function ContactsList(props) {
     setAddress(e.target.value)
   };
 
+  const handleCloseAddContactDialog = () => {
+    setFirstName("")
+    setLastName("")
+    setPhoneNumber("")
+    setEmail("")
+    setAddress("")
+    
+    setOpen(false);
+  };
+
 
   return (
     <div>
       <div style={{ paddingBottom: "40px" }}>
         <h2 style={{ textAlign: "center" }}>My Contacts</h2>
-        <Button onClick={handleOpen} style={{ marginLeft: "auto" }} variant="outlined" size="small">
+        <Button onClick={handleAddContactClick} style={{ marginLeft: "auto" }} variant="outlined" size="small">
           Add Contact
         </Button>
-        <Dialog open={open} onClose={handleClose}>
+
+        <Dialog open={open} onClose={handleCloseAddContactDialog}>
           <DialogTitle>Add New Contact</DialogTitle>
           <DialogContent>
             <TextField
@@ -150,8 +181,8 @@ export default function ContactsList(props) {
             />
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose}>Cancel</Button>
-            <Button onClick={() => addContact(contactID, firstName,email)}>Add Contact</Button>
+            <Button onClick={handleCloseAddContactDialog}>Cancel</Button>
+            <Button onClick={() => addContact(firstName, lastName, phoneNumber, email, address)}>Add Contact</Button>
           </DialogActions>
         </Dialog>
       </div>
@@ -161,17 +192,79 @@ export default function ContactsList(props) {
           <Container key={index} maxWidth="sm">
             <Box>
               <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar
-                    alt="Cindy Baker"
-                    src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.explicit.bing.net%2Fth%3Fid%3DOIP.Ess-KvWCZNqR1ePuy2cjJAAAAA%26pid%3DApi&f=1&ipt=c8f8440c070183128b3336384d591be4117a8bfeae0fddc338a8ad2ef23d27ff&ipo=images"
-                  />
-                </ListItemAvatar>
-                <ListItemText primary={contact.firstName} secondary={ contact.firstName + contact.email} />              
+
+                <Container>
+                  <ListItemText primary={"Name"} secondary={[contact.firstName, " ", contact.lastName]} />
+                  <ListItemText primary={"Phone Number"} secondary={contact.phoneNumber} />
+                  <ListItemText primary={"Email"} secondary={contact.email} />
+                  <ListItemText primary={"Address"} secondary={contact.address} />
+                </Container>
+
                 <div>
-                  <ListItemButton>
+                  <ListItemButton onClick={handleEditOpen}>
                     <EditIcon />
                   </ListItemButton>
+
+                  <Dialog open={editDialogState} onClose={handleEditClose}>
+                    <DialogTitle>Edit Contact</DialogTitle>
+                    <DialogContent>
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="firstName2"
+                        label="First Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={handleFirstName}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="lastName2"
+                        label="Last Name"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={handleLastName}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="phoneNumber2"
+                        label="Phone Number"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={handlePhoneNumber}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="email2"
+                        label="Email"
+                        type="email"
+                        fullWidth
+                        variant="standard"
+                        onChange={handleEmail}
+                      />
+                      <TextField
+                        autoFocus
+                        margin="dense"
+                        id="addess2"
+                        label="Address"
+                        type="text"
+                        fullWidth
+                        variant="standard"
+                        onChange={handleAddress}
+                      />
+                    </DialogContent>
+                    <DialogActions>
+                      <Button onClick={handleCloseEditContactDialog}>Cancel</Button>
+                      <Button onClick={() => updateContact(contact.contactID)}>Save Edits</Button>
+                    </DialogActions>
+                  </Dialog>
+
                   <ListItemButton
                     onClick={() => deleteContact(contact.contactID)}
                   >
