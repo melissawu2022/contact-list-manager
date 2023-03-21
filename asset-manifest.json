@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/melissawu2022/contact-list-manager/static/css/main.964fdded.css",
+    "main.js": "/melissawu2022/contact-list-manager/static/js/main.a8921c39.js",
+    "static/js/787.5d043f88.chunk.js": "/melissawu2022/contact-list-manager/static/js/787.5d043f88.chunk.js",
+    "index.html": "/melissawu2022/contact-list-manager/index.html",
+    "main.964fdded.css.map": "/melissawu2022/contact-list-manager/static/css/main.964fdded.css.map",
+    "main.a8921c39.js.map": "/melissawu2022/contact-list-manager/static/js/main.a8921c39.js.map",
+    "787.5d043f88.chunk.js.map": "/melissawu2022/contact-list-manager/static/js/787.5d043f88.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.964fdded.css",
+    "static/js/main.a8921c39.js"
+  ]
+}
