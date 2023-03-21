@@ -2,12 +2,9 @@ import React from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
-import Avatar from "@mui/material/Avatar";
 import {
   Divider,
-  ListItemAvatar,
   ListItemButton,
-  ListSubheader,
 } from "@mui/material";
 import { Container } from "@mui/system";
 import Box from "@mui/material/Box";
@@ -19,7 +16,7 @@ import { Dialog, DialogContent, DialogTitle, DialogActions, TextField } from '@m
 
 
 export default function ContactsList(props) {
-  let [contacts, setContacts] = useState([]); //CAN WE CHANGE LET TO CONST LATER????
+  let [contacts, setContacts] = useState([]);
   const [contactID, setContactID] = useState(0)
   const [open, setOpen] = useState(false);
   const [firstName, setFirstName] = useState("")
@@ -29,9 +26,32 @@ export default function ContactsList(props) {
   const [address, setAddress] = useState("")
   const [editDialogState, setEditDialogState] = useState(false)
 
+  const [firstNameError, setFirstNameError] = useState(false)
+  const [lastNameError, setLastNameError] = useState(false)
+  const [phoneNumberError, setPhoneNumberError] = useState(false)
+  const [emailError, setEmailError] = useState(false)
+  const [addressError, setAddressError] = useState(false)
+  const [isDisabled, setIsDisabled] = useState(true)
+
+
+  const addingIsDisabled = (firstNameError && lastNameError && phoneNumberError && emailError && addressError)
+
+  console.debug(firstNameError, lastNameError, phoneNumberError, emailError, addressError)
+  console.debug(addingIsDisabled)
+
   /**
    * if have extra time, make sure to check for unique emails
    */
+
+  const handleButtonDisabledStatus = () => {
+    if (firstName === "" || lastName === "" || phoneNumber === "" || email === "" || address === "") {
+      setIsDisabled(true)
+    } else {
+      setIsDisabled(false)
+    }
+  }
+
+
   const deleteContact = (contactID) => {
     const updatedContacts = contacts.filter(contact => contact.contactID !== contactID);
     console.debug("updatedContacts: ", updatedContacts)
@@ -78,27 +98,65 @@ export default function ContactsList(props) {
   }
 
   const handleCloseEditContactDialog = () => {
-    handleEditClose(false);
+    setEditDialogState(false);
   };
 
-  const handleFirstName = (event) => {
-    setFirstName(event.target.value)
+  const handleFirstName = (e) => {
+    let pattern = /^[a-zA-Z]+$/
+    let result = e.target.value.trim().match(pattern)
+    if (firstName.trim() !== "" && result !== null) {
+      setFirstNameError(false)
+    } else {
+      setFirstNameError(true)
+    }
+    handleButtonDisabledStatus()
+    setFirstName(e.target.value)
   };
 
   const handleLastName = (e) => {
-    console.debug(e.target.value)
+    let pattern = /^[a-zA-Z]+$/
+    let result = e.target.value.trim().match(pattern)
+    if (lastName.trim() !== "" && result !== null) {
+      setLastNameError(false)
+    } else {
+      setLastNameError(true)
+    }
+    handleButtonDisabledStatus()
     setLastName(e.target.value)
   };
 
   const handlePhoneNumber = (e) => {
+    let pattern = /^\d{10}$/
+    let result = e.target.value.trim().match(pattern);
+    if (phoneNumber.trim() !== "" && result !== null) {
+      setPhoneNumberError(false)
+    } else {
+      setPhoneNumberError(true)
+    }
+    handleButtonDisabledStatus()
     setPhoneNumber(e.target.value)
   };
 
   const handleEmail = (e) => {
+    let pattern = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+    let result = e.target.value.trim().match(pattern);
+
+    if (email.trim() !== "" && result !== null) {
+      setEmailError(false)
+    } else {
+      setEmailError(true)
+    }
+    handleButtonDisabledStatus()
     setEmail(e.target.value)
   };
 
   const handleAddress = (e) => {
+    if (address.trim() !== "") {
+      setAddressError(false)
+    } else {
+      setAddressError(true)
+    }
+    handleButtonDisabledStatus()
     setAddress(e.target.value)
   };
 
@@ -108,9 +166,49 @@ export default function ContactsList(props) {
     setPhoneNumber("")
     setEmail("")
     setAddress("")
-    
+
     setOpen(false);
   };
+
+  const handleFirstNameHelperText = () => {
+    if (firstNameError) {
+      return "Empty field or invalid first name (Alpha-only characters allowed). Please try again."
+    } else {
+      return ""
+    }
+  }
+
+  const handleLastNameHelperText = () => {
+    if (lastNameError) {
+      return "Empty field or invalid last name (Alpha-only characters allowed). Please try again."
+    } else {
+      return ""
+    }
+  }
+
+  const handlePhoneNumberHelperText = () => {
+    if (phoneNumberError) {
+      return "Empty field or invalid phone number format (only numbers allowed, must have 10 digits). Please try again."
+    } else {
+      return ""
+    }
+  }
+
+  const handleEmailHelperText = () => {
+    if (emailError) {
+      return "Empty field or invalid email. Please try again."
+    } else {
+      return ""
+    }
+  }
+
+  const handleAddressHelperText = () => {
+    if (addressError) {
+      return "Empty field. Please try again."
+    } else {
+      return ""
+    }
+  }
 
 
   return (
@@ -134,6 +232,8 @@ export default function ContactsList(props) {
               variant="standard"
               value={firstName}
               onChange={handleFirstName}
+              helperText={handleFirstNameHelperText()}
+              error={firstNameError}
             />
             <TextField
               autoFocus
@@ -145,6 +245,8 @@ export default function ContactsList(props) {
               variant="standard"
               value={lastName}
               onChange={handleLastName}
+              helperText={handleLastNameHelperText()}
+              error={lastNameError}
             />
             <TextField
               autoFocus
@@ -156,6 +258,8 @@ export default function ContactsList(props) {
               variant="standard"
               value={phoneNumber}
               onChange={handlePhoneNumber}
+              helperText={handlePhoneNumberHelperText()}
+              error={phoneNumberError}
             />
             <TextField
               autoFocus
@@ -167,6 +271,8 @@ export default function ContactsList(props) {
               variant="standard"
               value={email}
               onChange={handleEmail}
+              helperText={handleEmailHelperText()}
+              error={emailError}
             />
             <TextField
               autoFocus
@@ -178,11 +284,13 @@ export default function ContactsList(props) {
               variant="standard"
               value={address}
               onChange={handleAddress}
+              helperText={handleAddressHelperText()}
+              error={addressError}
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleCloseAddContactDialog}>Cancel</Button>
-            <Button onClick={() => addContact(firstName, lastName, phoneNumber, email, address)}>Add Contact</Button>
+            <Button disabled={isDisabled} onClick={() => addContact(firstName, lastName, phoneNumber, email, address)}>Add Contact</Button>
           </DialogActions>
         </Dialog>
       </div>
